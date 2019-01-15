@@ -100,7 +100,7 @@ const Setting = r => require.ensure([], () => r(require('@/components/user_cente
 const My_book = r => require.ensure([], () => r(require('@/components/user_center/my_book')), 'My_book');
 const Manage = r => require.ensure([], () => r(require('@/components/user_center/manage')), 'Manage');*/
 
-const User_center = () => import('@/components/User_center')
+const User_center = () => import('@/components/user_center')
 const Setting = () => import('@/components/user_center/setting')
 const My_book = () => import('@/components/user_center/my_book')
 const Manage = () => import('@/components/user_center/manage')

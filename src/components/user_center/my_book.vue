@@ -39,13 +39,48 @@
           <table class="order-pannel-head">
             <tbody>
             <tr>
-              <th>活动信息</th>
-              <th>预约人信息</th>
-              <th>票价</th>
-              
+              <th style="width: 460px">活动信息</th>
+              <th style="width: 260px">预约人信息</th>
+              <th style="width: 120px">票价</th>
+              <th style="width: 160px">活动状态</th>
+              <th>订单状态</th>
             </tr>
             </tbody>
           </table>
+          <div class="order-list">
+            <div class="order-item">
+              <div class="order-item-hd">
+                <p class="order-hd-info">
+                  <span class="txt-light">订票日期：</span>
+                  <span>2019-01-20</span>
+                </p>
+                <p class="order-hd-info">
+                  <span class="txt-light">订单号：</span>
+                  <span>EG49930796</span>
+                </p>
+              </div>
+              <div class="order-item-bd">
+                <table class="order-item-table">
+                  <tr>
+                    <td style="width: 460px">
+                      <p>教育活动——宇宙空间站VR太空体验</p>
+                      <p>2018-12-31&nbsp;&nbsp;&nbsp;&nbsp;09:59</p>
+                    </td>
+                    <td style="width: 260px">陈鑫、大兴</td>
+                    <td style="width: 120px">
+                      <span class="txt-price">50.0元</span>
+                    </td>
+                    <td style="width: 160px">
+                      <span class="act-status">即将进行</span>
+                    </td>
+                    <td>
+                      <span class="order-status">已支付</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
         <no-login title="暂无预约数据" v-if="!reserList.length"></no-login>
       </div>
@@ -122,7 +157,9 @@
       _Reserlists() {
         const url = 'api/reserlists'
         getAjax(url, {
-          type: this.type
+          number: 10,
+          status: 4,
+          page: 1
         }, (res) => {
           this.reserList = res.data
         }, (err) => {
@@ -141,9 +178,9 @@
           id: this.reserId
         }, (res) => {
           this.reserId = ''
-          if(res.status == 0){
+          if (res.status == 0) {
             this._Reserlists()
-          }else if(res.status == 1){
+          } else if (res.status == 1) {
             this.showDialog({title: '温馨提示', content: res.interpret, showClose: false})
           }
         }, (err) => {
@@ -315,16 +352,59 @@
         }
       }
     }
-    .order-panel{
-      .order-pannel-head{
+    .order-panel {
+      .order-pannel-head {
         width: 100%;
         height: 40px;
-        background: #f8f8f8;
-        th{
+        background: rgba(0, 0, 0, .04);
+        th {
           text-align: center;
           color: #666;
           padding: 0 10px;
           font-size: 14px;
+        }
+      }
+      .order-list {
+        .order-item {
+          border: 1px solid #acd1f9;
+          margin-top: 20px;
+          -webkit-transition: .3s linear border;
+          transition: .3s linear border;
+          background: #fff;
+          .order-item-hd {
+            height: 40px;
+            line-height: 40px;
+            background: #F0F8FF;
+            padding: 0 20px;
+            overflow: hidden;
+          }
+          .order-hd-info {
+            float: left;
+            margin-right: 20px;
+            font-size: 14px;
+            color: #333;
+            .txt-light {
+              color: #666;
+            }
+          }
+          .order-item-bd{
+            width: 100%;
+            text-align: center;
+            .order-item-table {
+              width: 100%;
+              text-align: center;
+              td{
+                font-size: 15px;
+                padding: 20px 10px;
+                border-top: 1px solid #DEDEDE;
+                border-right: 1px solid #DEDEDE;
+                line-height: 22px;
+                .txt-price{
+                  color: #ff8000;
+                }
+              }
+            }
+          }
         }
       }
     }
