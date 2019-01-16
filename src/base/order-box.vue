@@ -78,7 +78,7 @@
             活动参与人（￥{{details.data.money}} / 人）
           </p>
         </div>
-        <div class="item-group" style="padding-bottom: 0">
+        <div class="item-group" v-if="details.data.money !== '0.00'" style="padding-bottom: 0">
           <label class="lab">选择支付方式：</label>
           <ul class="pays clearfix">
             <li :class="payCurrent == index && 'active'"
@@ -142,6 +142,7 @@
 
   let count = 0
   const MAX = 100
+  let timer = null
 
   export default {
     name: "order-box",
@@ -242,6 +243,9 @@
       this._token()
       this.getOrderList()
     },
+    destroyed() {
+      clearInterval(timer)
+    },
     methods: {
       _token() {
         this.token = sessionStorage.getItem('token')
@@ -254,16 +258,6 @@
         this.payCurrent = index
         this.pay_channel = id
       },
-      /**
-       * 日期
-       * @param date
-       */
-      // handleDate(date) {
-      //   this.date = parseInt(moment(date).format('X')) + 12 * 60 * 60
-      //   this.current = -1
-      //   this.reser_id = ''
-      //   this.getNumbers()
-      // },
 
       /**
        * 获取场次日期
@@ -384,6 +378,7 @@
         }
         this._bookSubmit(details)
       },
+
       _bookSubmit(details) {
         const url = 'api/reser'
         getAjax(url, {
@@ -393,8 +388,8 @@
           this.isDisable = false
           if (res.status === 0) {
             this.order = res.data.order
-            //发起支付
-            this.orderPay()
+            //是否需要付款
+            this.details.data.money === '0.00' ? this.paySucc() : this.orderPay()
           } else {
             if (res.status === 2) {
               if (res.data[0]) {
@@ -449,17 +444,16 @@
         getAjax(url, {
           order: this.order
         }, (res) => {
-          console.log(res)
           if (res.status === 0) {
             this.$refs.pay.hide()
             this.paySucc()
           } else if (res.status === 2) {
             count++
             if (count < MAX) {
-              setTimeout(()=>{
+              timer = setTimeout(() => {
                 this.isPaySucc()
-              },3000)
-            }else {
+              }, 3000)
+            } else {
               this.$refs.pay.hide()
               this.showDialog({type: '', title: '温馨提示', content: "订单已超时，请到我的预约完成订单！", showClose: false})
             }
@@ -502,7 +496,7 @@
         } else if (!this.reser_id) {
           this.showDialog({type: '', title: '温馨提示', content: '请选择场次后进行预约', showClose: false})
           return false
-        } else if (!this.pay_channel) {
+        } else if (!this.pay_channel && this.details.data.money !== '0.00') {
           this.showDialog({type: '', title: '温馨提示', content: '请选择支付方式', showClose: false})
           return false
         }
