@@ -124,7 +124,7 @@
         .popup-txt {
           margin: 16px 0;
           text-align: left;
-          color: #333;
+          color: #19be6b;
           font-size: 20px;
           line-height: 22px;
           .popup-txt-def {
