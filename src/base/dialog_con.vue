@@ -1,7 +1,7 @@
 <template>
   <transition name="model-scale">
     <div class="popup" v-if="isShow">
-      <div class="mask" @click="(options.maskClosable === undefined ? true : options.maskClosable) ? hide() : ''"></div>
+      <div class="mask" @click="(options.maskClosable === undefined ? true : options.maskClosable) ? cancel() : ''"></div>
       <div class="popup-center">
         <div class="popup-content">
           <div class="popup-main">

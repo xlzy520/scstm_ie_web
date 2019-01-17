@@ -129,6 +129,7 @@
     <ShowPayEwm
       ref="pay"
       :ewm="pay_ewm"
+      @cancel="cancel"
     />
   </div>
 </template>
@@ -242,9 +243,6 @@
       this.getUserInfo()
       this._token()
       this.getOrderList()
-    },
-    destroyed() {
-      clearInterval(timer)
     },
     methods: {
       _token() {
@@ -513,6 +511,9 @@
         this.$refs.dialog.hide()
       },
 
+      cancel(){
+        clearInterval(timer)
+      },
 
       showDialog(options) {
         this.type = options.type

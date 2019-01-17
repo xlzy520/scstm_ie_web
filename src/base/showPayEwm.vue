@@ -1,7 +1,7 @@
 <template>
   <transition name="model-scale">
     <div class="popup" v-if="isShow">
-      <div class="mask" @click="hide()"></div>
+      <div class="mask" @click="cancel()"></div>
       <div class="popup-center">
         <div class="popup-content">
           <img :src="ewm"/>

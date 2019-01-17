@@ -7,7 +7,7 @@
     <bg>
       <div class="book-con">
         <nav-bar :navBar="navBar" @handleClick="handleTypeClick"></nav-bar>
-        <div class="order-panel" v-if="reserList.status===0">
+        <div class="order-panel" v-if="reserList.status===0 && reserList.data.data.length">
           <table class="order-pannel-head">
             <tbody>
             <tr>
@@ -20,7 +20,7 @@
             </tbody>
           </table>
           <div class="order-list">
-            <div class="order-item" v-for="(item,index) in reserList.data.data">
+            <div class="order-item" :key="index" v-for="(item,index) in reserList.data.data">
               <div class="order-item-hd">
                 <p class="order-hd-info">
                   <span class="txt-light">订票日期：</span>
@@ -56,17 +56,16 @@
                   <tr>
                     <td colspan="6" class="order-operation">
                       <div class="btn-right">
-                        <a href="javascript:void(0)" v-if="item.status===2" class="btn ivu-btn-warning"
-                           @click="reserCancel(item)">取消预约</a>
-                        <a href="javascript:void(0)"
-                           v-if="item.status===1"
-                           v-for="(pay,index) in pays"
-                           @click="orderPay(item, pay)"
-                           class="btn pay">
+                        <Button type="warning" v-if="item.status===2" class="btn" @click="reserCancel(item)">取消预约
+                        </Button>
+                        <Button v-if="item.status===1"
+                                class="btn pay"
+                                :key="index"
+                                v-for="(pay,index) in pays"
+                                @click="orderPay(item, pay)">
                           <img :src="pay.img"/>
                           <span>{{pay.title}}</span>
-                        </a>
-                        <!--<a href="javascript:void(0)" v-else-if="item.status===1" class="btn ivu-btn-info" @click="orderPay">继续支付</a>-->
+                        </Button>
                         <a :href="[item.type, item.activity_id] | filterLink" target="_blank" class="btn">活动详情</a>
                       </div>
                     </td>
@@ -74,9 +73,10 @@
                 </table>
               </div>
             </div>
+            <Spin size="large" fix v-if="loading"></Spin>
           </div>
         </div>
-        <no-login title="暂无预约数据" v-if="reserList.status===2"></no-login>
+        <no-login title="暂无预约数据" v-if="reserList.status===2 || !reserList.data.data.length"></no-login>
       </div>
     </bg>
 
@@ -88,6 +88,7 @@
 
     <ShowPayEwm
       ref="pay"
+      @cancel="cancel"
       :ewm="pay_ewm"
     />
   </div>
@@ -170,7 +171,8 @@
           content: '',
           showClose: true,
         },
-        order: ''
+        order: '',
+        loading:false
       }
     },
     created() {
@@ -180,21 +182,22 @@
       //查询预约列表
       _Reserlists() {
         const url = 'api/reserlists'
+        this.loading = true
         getAjax(url, {
           number: 10,
           status: this.status,
           page: 1
         }, (res) => {
           this.reserList = res
+          this.loading = false
           clearInterval(timer)
-          clearInterval(isPayTimer)
           timer = setInterval(() => {
             this.reserList.status === 0 &&
             this.reserList.data.data.map((item, index) => {
-              if (item.status !== 1) return
+              //if (item.status !== 1) return
               let diff = item.overdue_time
               diff--;
-              if (diff < 0) {
+              if (diff < 0 && item.status === 1) {
                 clearInterval(timer)
                 this.reserList.data.data.splice(index, 1)
               } else {
@@ -203,45 +206,47 @@
             })
           }, 1000)
         }, (err) => {
+          this.loading = false
           console.log(err)
         }, this)
-      },
-
-      confirm() {
-        this.$refs.dialog.hide()
       },
 
       //取消预约
       reserCancel(item) {
         const url = 'api/resercancel'
+        this.loading = true
         getAjax(url, {
           id: item.id,
           order: item.order
-        },(res)=>{
-          if(res.status === 0){
-            this.showDialog({
-              type: '',
-              title: '温馨提示',
-              icon: 'ios-checkmark',
-              iconColor: '#19be6b',
-              content: '取消预约成功！',
-              showClose: false
-            })
+        }, (res) => {
+          this.loading = false
+          if (res.status === 0) {
+            // this.showDialog({
+            //   type: '',
+            //   title: '温馨提示',
+            //   icon: 'ios-checkmark',
+            //   iconColor: '#19be6b',
+            //   content: '取消预约成功！',
+            //   showClose: false
+            // })
             this._Reserlists()
           }
-        },(err)=>{
+        }, (err) => {
+          this.loading = false
           console.log(err)
-        },this)
+        }, this)
       },
 
       //调用支付
       orderPay(item, pay) {
         const url = 'api/order_pay'
+        this.loading = true
         getAjax(url, {
           order: item.order,
           choose: 2,
           pay_channel: pay.id
         }, (res) => {
+          this.loading = false
           if (res.status === 0) {
             this.pay_ewm = res.data.data
             this.$refs.pay.show()
@@ -249,6 +254,7 @@
             this.isPaySucc()
           }
         }, (err) => {
+          this.loading = false
           console.log(err)
         }, this)
       },
@@ -288,6 +294,7 @@
       },
 
       handleTypeClick(typeId) {
+        this.loading= false
         this.status = typeId
         this._Reserlists()
       },
@@ -303,6 +310,14 @@
           showClose: options.showClose,
         }
         this.$refs.dialog.show()
+      },
+
+      confirm() {
+        this.$refs.dialog.hide()
+      },
+
+      cancel(){
+        clearInterval(isPayTimer)
       }
     },
     filters: {
@@ -322,6 +337,11 @@
           return str
         }
       }
+    },
+    watch:{
+      loading(val){
+        console.log(val)
+      }
     }
   }
 </script>
@@ -331,140 +351,6 @@
     padding-top: 50px;
     padding-bottom: 60px;
     margin: 0 auto;
-    .book-list {
-      li {
-        width: 385px;
-        position: relative;
-        -webkit-border-radius: 2px;
-        -moz-border-radius: 2px;
-        border-radius: 2px;
-        overflow: hidden;
-        margin-right: 20px;
-        margin-bottom: 20px;
-        float: left;
-        &:nth-child(3n) {
-          margin-right: 0;
-        }
-        .act-img {
-          width: 100%;
-          height: 257px;
-          overflow: hidden;
-          position: relative;
-          text-align: center;
-          img {
-            width: 100%;
-            transition: opacity 0.35s, transform 0.35s;
-            -webkit-transform: scale(1.12);
-            transform: scale(1.12);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-          }
-          .mask {
-            position: absolute;
-            top: 0;
-            right: 0;
-            left: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, .6);
-            z-index: 100;
-            opacity: 0;
-            transition: opacity .6s ease 0s;
-            cursor: default;
-            .mask-con {
-              width: 100%;
-              padding: 0 65px;
-              height: 100%;
-              .mask-txt {
-                float: left;
-                font-size: 15px;
-                letter-spacing: 1.5px;
-                text-align: center;
-                width: 120px;
-                height: 40px;
-                margin: auto;
-                background-image: -webkit-linear-gradient(135deg, #00d0fb, #00acf6);
-                background-image: -moz-linear-gradient(135deg, #00d0fb, #00acf6);
-                background-image: -o-linear-gradient(135deg, #00d0fb, #00acf6);
-                background-image: -ms-linear-gradient(135deg, #00d0fb, #00acf6);
-                background-image: linear-gradient(135deg, #00d0fb, #00acf6);
-                border-radius: 4px;
-                line-height: 40px;
-                margin-top: 108px;
-                cursor: pointer;
-                span {
-                  color: #fff;
-                  display: block;
-                }
-                a {
-                  color: #fff;
-                  display: block;
-                }
-              }
-            }
-            &:hover {
-              opacity: 1;
-            }
-          }
-          &:hover {
-            img {
-              background: rgba(255, 255, 255, .8);
-              -webkit-transform: scale(1);
-              transform: scale(1);
-            }
-          }
-        }
-        .act-info {
-          width: 100%;
-          height: 80px;
-          background: #fff;
-          padding: 10px;
-          text-align: center;
-          .time {
-            width: 130px;
-            height: 100%;
-            float: left;
-            color: #05afee;
-            border-right: 1px solid #d4d4d4;
-            font-size: 18px;
-            .date {
-              font-size: 24px;
-            }
-          }
-          .act-name {
-            float: left;
-            width: 230px;
-            padding-right: 10px;
-            padding-left: 10px;
-            .act-title {
-              font-size: 20px;
-              color: #333;
-              margin-bottom: 5px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-            .number {
-              font-size: 16px;
-              color: #333;
-            }
-          }
-        }
-        .type-name {
-          position: absolute;
-          width: 150px;
-          height: 40px;
-          border-top-right-radius: 6px;
-          border-bottom-right-radius: 6px;
-          text-align: center;
-          line-height: 40px;
-          left: 0;
-          top: 20px;
-          background-image: linear-gradient(-131deg, #0097E3 -16%, #3BD9D0 100%);
-          color: #fff;
-          font-size: 16px;
-        }
-      }
-    }
     .order-panel {
       .order-pannel-head {
         width: 100%;
@@ -478,9 +364,10 @@
         }
       }
       .order-list {
+        position: relative;
         .order-item {
           border: 1px solid #acd1f9;
-          margin-top: 20px;
+          margin-top: 10px;
           -webkit-transition: .3s linear border;
           transition: .3s linear border;
           background: #fff;
