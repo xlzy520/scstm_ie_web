@@ -56,7 +56,7 @@
                   <tr>
                     <td colspan="6" class="order-operation">
                       <div class="btn-right">
-                        <Button type="warning" v-if="item.status===2" class="btn" @click="reserCancel(item)">取消预约
+                        <Button type="warning" v-if="item.status===1 || item.status===2" class="btn" @click="reserCancel(item)">取消预约
                         </Button>
                         <Button v-if="item.status===1"
                                 class="btn pay"
@@ -75,6 +75,11 @@
             </div>
             <Spin size="large" fix v-if="loading"></Spin>
           </div>
+          <Pagination v-if="reserList.data.total"
+                      :total="reserList.data.total*10"
+                      :page="page"
+                      @handleChange="handlePage">
+          </Pagination>
         </div>
         <no-login title="暂无预约数据" v-if="reserList.status===2 || !reserList.data.data.length"></no-login>
       </div>
@@ -103,6 +108,7 @@
   import moment from 'moment'
   import DialogCon from '@/base/dialog_con'
   import ShowPayEwm from '@/base/showPayEwm'
+  import Pagination from '@/base/pagination'
 
 
   let timer = null
@@ -116,7 +122,8 @@
       NavBar,
       NoLogin,
       DialogCon,
-      ShowPayEwm
+      ShowPayEwm,
+      Pagination
     },
     data() {
       return {
@@ -172,6 +179,7 @@
           showClose: true,
         },
         order: '',
+        page:1,
         loading:false
       }
     },
@@ -184,9 +192,9 @@
         const url = 'api/reserlists'
         this.loading = true
         getAjax(url, {
-          number: 10,
+          number: 6,
           status: this.status,
-          page: 1
+          page: this.page
         }, (res) => {
           this.reserList = res
           this.loading = false
@@ -211,6 +219,15 @@
         }, this)
       },
 
+      /**
+       * 获取子组件页码
+       * @param page
+       */
+      handlePage(page) {
+        this.page = page
+        this._Reserlists()
+      },
+
       //取消预约
       reserCancel(item) {
         const url = 'api/resercancel'
@@ -221,14 +238,14 @@
         }, (res) => {
           this.loading = false
           if (res.status === 0) {
-            // this.showDialog({
-            //   type: '',
-            //   title: '温馨提示',
-            //   icon: 'ios-checkmark',
-            //   iconColor: '#19be6b',
-            //   content: '取消预约成功！',
-            //   showClose: false
-            // })
+            this.showDialog({
+              type: '',
+              title: '温馨提示',
+              icon: 'ios-checkmark',
+              iconColor: '#19be6b',
+              content: '取消预约成功！',
+              showClose: false
+            })
             this._Reserlists()
           }
         }, (err) => {
@@ -266,8 +283,11 @@
           order: this.order.order
         }, (res) => {
           if (res.status === 0) {
-            this.$refs.pay.hide()
-            this.paySucc()
+            this.$refs.pay.subShow()
+            setTimeout(()=>{
+              this.$refs.pay.hide()
+              this.paySucc()
+            },3000)
           } else if (res.status === 2) {
             if (this.order.overdue_time > 0) {
               isPayTimer = setTimeout(() => {
@@ -281,14 +301,6 @@
       },
 
       paySucc() {
-        this.showDialog({
-          type: '',
-          title: '温馨提示',
-          icon: 'ios-checkmark',
-          iconColor: '#19be6b',
-          content: '恭喜您，预约成功！',
-          showClose: false
-        })
         this.order = ''
         this._Reserlists()
       },
@@ -296,6 +308,7 @@
       handleTypeClick(typeId) {
         this.loading= false
         this.status = typeId
+        this.page = 1
         this._Reserlists()
       },
 
@@ -336,11 +349,6 @@
           var str = (String(hh).length === 1 ? `0${hh}` : hh) + ':' + (String(mm).length === 1 ? `0${mm}` : mm) + ':' + (String(ss).length === 1 ? `0${ss}` : ss)
           return str
         }
-      }
-    },
-    watch:{
-      loading(val){
-        console.log(val)
       }
     }
   }

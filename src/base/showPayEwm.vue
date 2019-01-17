@@ -1,10 +1,20 @@
 <template>
   <transition name="model-scale">
-    <div class="popup" v-if="isShow">
+    <div class="popup1" v-if="isShow">
       <div class="mask" @click="cancel()"></div>
       <div class="popup-center">
         <div class="popup-content">
           <img :src="ewm"/>
+          <div class="sub-mask" v-if="isSubShow">
+            <p class="popup-icon" style="color: #19be6b">
+              <Icon type="ios-checkmark"></Icon>
+            </p>
+            <div class="popup-txt">
+              <div class="popup-txt-def">
+                <p>支付成功！</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -23,6 +33,7 @@
     data() {
       return {
         isShow: false,
+        isSubShow:false
       }
     },
     methods: {
@@ -38,6 +49,12 @@
       },
       hide() {
         this.isShow = false
+      },
+      subShow(){
+        this.isSubShow = true
+      },
+      subHide(){
+        this.isSubShow = false
       }
     }
   }
@@ -53,7 +70,7 @@
     opacity: 0;
   }
 
-  .popup {
+  .popup1 {
     position: fixed;
     left: 0;
     right: 0;
@@ -76,7 +93,6 @@
       position: absolute;
       width: 100%;
       height: 100%;
-
       .popup-content {
         transform: translate(-50%, -50%);
         top: -50%;
@@ -86,8 +102,38 @@
         position: absolute;
         box-sizing: border-box;
         pointer-events: auto;
+        .sub-mask{
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(255,255,255,.7);
+        }
         img{
           width: 300px;
+        }
+        .popup-icon {
+          margin-top:100px;
+          margin-bottom: 16px;
+          line-height: 1;
+          color: #4a4c5b;
+          font-size: 40px;
+          text-align: center;
+        }
+        .popup-txt {
+          margin: 16px 0;
+          text-align: left;
+          color: #333;
+          font-size: 20px;
+          line-height: 22px;
+          .popup-txt-def {
+            padding: 0 16px;
+            p {
+              display: table;
+              margin: auto;
+            }
+          }
         }
       }
     }

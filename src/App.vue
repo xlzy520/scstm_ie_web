@@ -139,13 +139,13 @@
     height: 144px !important;
   }
 
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 20s;
-  }
+  /*.fade-enter-active, .fade-leave-active {*/
+    /*transition: opacity 20s;*/
+  /*}*/
 
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
+  /*.fade-enter, .fade-leave-to {*/
+    /*opacity: 0;*/
+  /*}*/
 
   .layout {
     width: 1200px;

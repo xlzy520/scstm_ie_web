@@ -101,6 +101,7 @@
         <p class="notice" style="display: inline-block; vertical-align: middle;margin-left: 20px">
           <span>*</span> 本活动将于活动开始前半小时停止预约
         </p>
+        <Spin size="large" fix v-if="isDisable"></Spin>
       </div>
     </div>
 
@@ -443,18 +444,21 @@
           order: this.order
         }, (res) => {
           if (res.status === 0) {
-            this.$refs.pay.hide()
-            this.paySucc()
-          } else if (res.status === 2) {
-            count++
-            if (count < MAX) {
-              timer = setTimeout(() => {
-                this.isPaySucc()
-              }, 3000)
-            } else {
+            this.$refs.pay.subShow()
+            setTimeout(()=>{
               this.$refs.pay.hide()
-              this.showDialog({type: '', title: '温馨提示', content: "订单已超时，请到我的预约完成订单！", showClose: false})
-            }
+              this.paySucc()
+            },3000)
+          } else if (res.status === 2) {
+            timer = setTimeout(() => {
+              count++
+              if (count < MAX) {
+                this.isPaySucc()
+              } else {
+                this.$refs.pay.hide()
+                this.showDialog({type: '', title: '温馨提示', content: "订单已超时，请到我的预约完成订单！", showClose: false})
+              }
+            }, 3000)
           }
         }, (err) => {
           console.log(err)
@@ -462,14 +466,6 @@
       },
 
       paySucc() {
-        this.showDialog({
-          type: '',
-          title: '温馨提示',
-          icon: 'ios-checkmark',
-          iconColor: '#19be6b',
-          content: '恭喜您，预约成功！',
-          showClose: false
-        })
         this.getNumbers()
         this.formValidate = {
           items: [
@@ -484,6 +480,7 @@
         }
         this.reser_id = ''
         this.current = -1
+        this.payCurrent = -1
       },
 
       //验证预约格式
@@ -511,7 +508,7 @@
         this.$refs.dialog.hide()
       },
 
-      cancel(){
+      cancel() {
         clearInterval(timer)
       },
 
@@ -562,6 +559,7 @@
       -moz-border-radius: 2px;
       border-radius: 2px;
       padding: 30px;
+      position: relative;
       .ivu-input-wrapper {
         width: 70%;
       }
