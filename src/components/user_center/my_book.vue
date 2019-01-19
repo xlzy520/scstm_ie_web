@@ -12,9 +12,10 @@
             <tbody>
             <tr>
               <th style="width: 460px">活动信息</th>
-              <th style="width: 260px">预约人信息</th>
-              <th style="width: 120px">票价</th>
-              <th style="width: 160px">活动状态</th>
+              <th style="width: 220px">预约人信息</th>
+              <th style="width: 130px">票价</th>
+              <th style="width: 130px">出票状态</th>
+              <th style="width: 130px">活动状态</th>
               <th>订单状态</th>
             </tr>
             </tbody>
@@ -39,14 +40,23 @@
                 <table class="order-item-table">
                   <tr>
                     <td style="width: 460px">
-                      <p>{{item.type}}——{{item.title}}</p>
-                      <p>{{item.sesstime}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.sess}}</p>
+                      <div class="act-img">
+                        <img :src="item.img"/>
+                      </div>
+                      <div class="act-txt">
+                        <p>{{item.type}}——{{item.title}}</p>
+                        <p>{{item.sesstime}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.sess}}</p>
+                      </div>
                     </td>
-                    <td style="width: 260px">{{item.name_user}}</td>
-                    <td style="width: 120px">
+                    <td style="width: 220px">{{item.name_user}}</td>
+                    <td style="width: 130px">
                       <span class="txt-price">{{item.money}}元</span>
                     </td>
-                    <td style="width: 160px">
+                    <td style="width: 130px">
+                      <span v-if="item.status<6 && item.status > 1"
+                            class="order-status">{{ticketObj[item.drawer]}}</span>
+                    </td>
+                    <td style="width: 130px">
                       <span class="act-status">{{item.is_end}}</span>
                     </td>
                     <td>
@@ -56,7 +66,8 @@
                   <tr>
                     <td colspan="6" class="order-operation">
                       <div class="btn-right">
-                        <Button type="warning" v-if="item.status===1 || item.status===2" class="btn" @click="reserCancel(item)">取消预约
+                        <Button type="warning" v-if="item.status===1 || item.status===2" class="btn"
+                                @click="reserCancel(item)">取消预约
                         </Button>
                         <Button v-if="item.status===1"
                                 class="btn pay"
@@ -151,6 +162,7 @@
           {title: '已付款', id: 2},
           {title: '全部订单', id: ''},
         ],
+        ticketObj: {1: '出票中', 2: '出票成功', 3: '出票失败', 4: '已退票'},
         statusObj: {1: '未支付', 2: '已支付', 3: '已使用', 4: '取消退款中', 5: '已取消退款', 6: '超时未支付', 7: '已删除'},
         status: 1,
         reserList: '',
@@ -179,8 +191,8 @@
           showClose: true,
         },
         order: '',
-        page:1,
-        loading:false
+        page: 1,
+        loading: false
       }
     },
     created() {
@@ -256,6 +268,7 @@
 
       //调用支付
       orderPay(item, pay) {
+        this.$refs.pay.subHide()
         const url = 'api/order_pay'
         this.loading = true
         getAjax(url, {
@@ -284,10 +297,10 @@
         }, (res) => {
           if (res.status === 0) {
             this.$refs.pay.subShow()
-            setTimeout(()=>{
+            setTimeout(() => {
               this.$refs.pay.hide()
               this.paySucc()
-            },3000)
+            }, 3000)
           } else if (res.status === 2) {
             if (this.order.overdue_time > 0) {
               isPayTimer = setTimeout(() => {
@@ -306,7 +319,7 @@
       },
 
       handleTypeClick(typeId) {
-        this.loading= false
+        this.loading = false
         this.status = typeId
         this.page = 1
         this._Reserlists()
@@ -329,7 +342,7 @@
         this.$refs.dialog.hide()
       },
 
-      cancel(){
+      cancel() {
         clearInterval(isPayTimer)
       }
     },
@@ -413,6 +426,20 @@
                 border-top: 1px solid #DEDEDE;
                 border-right: 1px solid #DEDEDE;
                 line-height: 22px;
+                .act-img {
+                  width: 90px;
+                  display: inline-block;
+                  vertical-align: middle;
+                  img {
+                    width: 100%;
+                  }
+                }
+                .act-txt {
+                  text-align: left;
+                  display: inline-block;
+                  vertical-align: middle;
+                  margin-left: 10px;
+                }
                 .txt-price {
                   color: #ff8000;
                 }
