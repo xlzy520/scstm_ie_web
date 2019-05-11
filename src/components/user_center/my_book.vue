@@ -22,7 +22,7 @@
               <div class="order-item-hd">
                 <p class="order-hd-info">
                   <span class="txt-light">订票日期：</span>
-                  <span>{{item.addTime | formatDate}}</span>
+                  <span>{{item.addtime | formatDate}}</span>
                 </p>
                 <p class="order-hd-info">
                   <span class="txt-light">订单号：</span>
@@ -450,7 +450,7 @@ export default {
       );
     },
     formatDate(date) {
-      return moment(date).format("YYYY-MM-DD");
+      return moment(date*1000).format("YYYY-MM-DD");
     },
     countTime(diff) {
       if (diff > 0) {
