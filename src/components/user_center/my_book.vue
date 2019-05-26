@@ -113,7 +113,13 @@
 
     <dialog-con :options="options" ref="dialog" @confirm="confirm"></dialog-con>
 
-    <ShowPayEwm ref="pay" @cancel="cancel" :ewm="pay_ewm"/>
+    <ShowPayEwm
+      ref="pay"
+      :pay_channel="pay_channel"
+      :money="money"
+      @cancel="cancel"
+      :ewm="pay_ewm"
+    />
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -213,7 +219,9 @@ export default {
       },
       order: "",
       page: 1,
-      loading: false
+      loading: false,
+      pay_channel: 1,
+      money: 0
     };
   },
   created() {
@@ -286,11 +294,11 @@ export default {
         err => {
           this.loading = false;
           this.showDialog({
-              type: "",
-              title: "温馨提示",
-              content: '删除订单失败！',
-              showClose: false
-            });
+            type: "",
+            title: "温馨提示",
+            content: "删除订单失败！",
+            showClose: false
+          });
         },
         this
       );
@@ -359,9 +367,18 @@ export default {
           this.loading = false;
           if (res.status === 0) {
             this.pay_ewm = res.data.data;
+            this.pay_channel = pay.id;
+            this.money = item.money;
             this.$refs.pay.show();
             this.order = item;
             this.isPaySucc();
+          } else {
+            this.showDialog({
+              type: "",
+              title: "温馨提示",
+              content: '调用支付失败，请重试！',
+              showClose: false
+            });
           }
         },
         err => {
@@ -450,7 +467,7 @@ export default {
       );
     },
     formatDate(date) {
-      return moment(date*1000).format("YYYY-MM-DD");
+      return moment(date * 1000).format("YYYY-MM-DD");
     },
     countTime(diff) {
       if (diff > 0) {

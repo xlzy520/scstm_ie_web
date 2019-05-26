@@ -2,7 +2,7 @@
   <div class="order-box">
     <div class="book-box" v-if="token && details.data.state===1">
       <p class="title">活动预约</p>
-      <p class="s-tit">预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
       <div class="book">
         <div class="item-group">
           <label class="lab">日期选择：</label>
@@ -133,7 +133,7 @@
 
     <div class="book-box" v-if="!token">
       <p class="title">活动预约</p>
-      <p class="s-tit">预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
       <div class="book">
         <no-login title="请先登录"></no-login>
       </div>
@@ -141,7 +141,7 @@
 
     <div class="book-box" v-if="token && details.data.state===2">
       <p class="title">活动预约</p>
-      <p class="s-tit">预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
       <div class="book">
         <no-login title="暂未开启在线预约"></no-login>
       </div>
@@ -370,7 +370,7 @@ export default {
       let arr = this.formValidate.items.filter(item => item.status);
       if (arr.length < 3) {
         this.number++;
-        console.log(this.number)
+        console.log(this.number);
         this.formValidate.items.push({
           name: "",
           age: "",
@@ -424,6 +424,7 @@ export default {
 
     _bookSubmit(details) {
       const url = "api/reser";
+      this.$refs.pay.show();
       getAjax(
         url,
         {
@@ -747,7 +748,8 @@ export default {
           }
           &.active {
             p {
-              background: #f5f5f5;
+              background: rgba(228, 225, 225, 0.9);
+              color: #fff;
             }
           }
         }
