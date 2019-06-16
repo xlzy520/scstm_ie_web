@@ -2,7 +2,7 @@
   <div class="order-box">
     <div class="book-box" v-if="token && details.data.state===1">
       <p class="title">活动预约</p>
-      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit">{{noticeTxt}}</p>
       <div class="book">
         <div class="item-group">
           <label class="lab">日期选择：</label>
@@ -22,7 +22,8 @@
                 placeholder="请选择场次日期"
               >
                 <Option
-                  v-for="item in dateList"
+                  v-for="(item,index) in dateList"
+                  v-if="index < 7"
                   :value="item.value"
                   :key="item.value"
                 >{{ item.value }}</Option>
@@ -179,6 +180,10 @@ export default {
     },
     typeVal: {
       default: 1
+    },
+    noticeTxt: {
+      type: String,
+      default: "除电影预约，预约活动场次前，请先确保已成功预定科技馆门票"
     }
   },
   components: {
@@ -424,7 +429,7 @@ export default {
 
     _bookSubmit(details) {
       const url = "api/reser";
-      this.$refs.pay.show();
+      //this.$refs.pay.show();
       getAjax(
         url,
         {

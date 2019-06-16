@@ -31,7 +31,7 @@
             <!--<p class="btn-book">立即预定</p>-->
           </div>
         </div>
-        <OrderBox :details="theaterDetail ? theaterDetail : {}" typeVal="2"></OrderBox>
+        <OrderBox :details="theaterDetail ? theaterDetail : {}" typeVal="2" :noticeTxt="noticeTxt"></OrderBox>
         <div class="movie-clips clearfix">
           <p class="title">片花 / 剧照</p>
           <clips-roll v-if="theaterDetail.data.cinema_img.length" :data="theaterDetail.data.cinema_img"></clips-roll>
@@ -60,6 +60,7 @@
     },
     data() {
       return {
+        noticeTxt:"1.2米一下儿童不能观看4D，请勿购票；取完预约门票后不能退换4D电影票",
         theaterDetail: '',
         navs: [
           {
