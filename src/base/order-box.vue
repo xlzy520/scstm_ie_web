@@ -2,7 +2,7 @@
   <div class="order-box">
     <div class="book-box" v-if="token && details.data.state===1">
       <p class="title">活动预约</p>
-      <p class="s-tit">{{noticeTxt}}</p>
+      <p class="s-tit" v-if="islogin" v-html="noticeTxt"></p>
       <div class="book">
         <div class="item-group">
           <label class="lab">日期选择：</label>
@@ -134,7 +134,7 @@
 
     <div class="book-box" v-if="!token">
       <p class="title">活动预约</p>
-      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit" v-if="islogin" v-html="noticeTxt"></p>
       <div class="book">
         <no-login title="请先登录"></no-login>
       </div>
@@ -142,7 +142,7 @@
 
     <div class="book-box" v-if="token && details.data.state===2">
       <p class="title">活动预约</p>
-      <p class="s-tit">除电影预约，预约活动场次前，请先确保已成功预定科技馆门票</p>
+      <p class="s-tit" v-if="islogin" v-html="noticeTxt"></p>
       <div class="book">
         <no-login title="暂未开启在线预约"></no-login>
       </div>
@@ -264,7 +264,8 @@ export default {
         }
       ],
       pay_ewm: "",
-      number: 1 //人数
+      number: 1, //人数
+      islogin:false
     };
   },
   created() {
@@ -272,6 +273,7 @@ export default {
     this.getUserInfo();
     this._token();
     this.getOrderList();
+    this.islogin = sessionStorage.getItem('login')
   },
   methods: {
     _token() {
