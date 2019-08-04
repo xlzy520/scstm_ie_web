@@ -8,11 +8,12 @@
           <table class="order-pannel-head">
             <tbody>
               <tr>
-                <th style="width: 460px">活动信息</th>
-                <th style="width: 220px">预约人信息</th>
-                <th style="width: 130px">票价</th>
-                <th style="width: 130px">出票状态</th>
-                <th style="width: 130px">活动状态</th>
+                <th style="width: 400px">活动信息</th>
+                <th style="width: 210px">预约人信息</th>
+                <th style="width: 110px">票价</th>
+                <th style="width: 110px">出票状态</th>
+                <th style="width: 110px">取票状态</th>
+                <th style="width: 110px">活动状态</th>
                 <th>订单状态</th>
               </tr>
             </tbody>
@@ -36,7 +37,7 @@
               <div class="order-item-bd">
                 <table class="order-item-table">
                   <tr>
-                    <td style="width: 460px">
+                    <td style="width: 400px">
                       <div class="act-img">
                         <img :src="item.img">
                       </div>
@@ -45,16 +46,19 @@
                         <p>{{item.sesstime}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.sess}}</p>
                       </div>
                     </td>
-                    <td style="width: 220px">{{item.name_user}}</td>
-                    <td style="width: 130px">
+                    <td style="width: 210px">{{item.name_user}}</td>
+                    <td style="width: 110px">
                       <span class="txt-price">{{item.money}}元</span>
                     </td>
-                    <td style="width: 130px">
+                    <td style="width: 110px">
                       <!--<span v-if="item.status<6 && item.status > 1"-->
                       <!--class="order-status">{{ticketObj[item.drawer]}}</span>-->
                       <span class="order-status">{{ticketObj[item.drawer]}}</span>
                     </td>
-                    <td style="width: 130px">
+                    <td style="width:110px">
+                      {{item.is_take == 0 ? '未取票' : '已取票'}}
+                    </td>
+                    <td style="width: 110px">
                       <span class="act-status">{{item.is_end}}</span>
                     </td>
                     <td>
@@ -62,7 +66,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td colspan="6" class="order-operation">
+                    <td colspan="7" class="order-operation">
                       <div class="btn-right">
                         <Button
                           type="warning"
